@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from langchain import PromptTemplate
 from langchain.llms import OpenAI
 from langchain.chains import LLMChain
@@ -8,7 +10,7 @@ from output_parsers import person_intel_parser, PersonIntel
 from third_parties.linkedin import scrape_linkedin_profile
 
 
-def llm_demo(name: str) -> PersonIntel:
+def llm_demo(name: str) -> Tuple[PersonIntel, str]:
     summary_template = """
          given the Linkedin information {linkedin_information} and twitter {twitter_information} about a person from I want you to create:
          1. a short summary
@@ -26,7 +28,8 @@ def llm_demo(name: str) -> PersonIntel:
 
     linkedin_data = scrape_linkedin_profile(linkedin_profile_url)
     result = chain.run(information=linkedin_data)
-    return person_intel_parser.parse(result)
+    linkedin_profile_url = linkedin_data.get("profile")
+    return person_intel_parser.parse(result), linkedin_data.get("profile_pic_url")
 
 
 if __name__ == '__main__':
